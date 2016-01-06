@@ -15,25 +15,25 @@ namespace Rainbow.Tfs.SourceControl
 
 		public FileSyncTfs(string username, string password, string domain)
 		{
-            // If no username is specified, we attempt to retrieve the Network
-            // Credentials based off the current impersonated identity
-		    if (string.IsNullOrWhiteSpace(username))
-		    {
-		        var windowsIdentity = WindowsIdentity.GetCurrent();
-		        if (windowsIdentity == null)
-		        {
-		            throw new Exception("[Rainbow.Tfs] Unable to retrieve impersonated identity.");
-		        }
+			// If no username is specified, we attempt to retrieve the Network
+			// Credentials based off the current impersonated identity
+			if (string.IsNullOrWhiteSpace(username))
+			{
+				var windowsIdentity = WindowsIdentity.GetCurrent();
+				if (windowsIdentity == null)
+				{
+					throw new Exception("[Rainbow.Tfs] Unable to retrieve impersonated identity.");
+				}
 
-		        using (windowsIdentity.Impersonate())
-		        {
-		            _networkCredential = CredentialCache.DefaultNetworkCredentials;
-		        }
-		    }
-		    else
-		    {
-                _networkCredential = new NetworkCredential(username, password, domain);
-            }
+				using (windowsIdentity.Impersonate())
+				{
+					_networkCredential = CredentialCache.DefaultNetworkCredentials;
+				}
+			}
+			else
+			{
+				_networkCredential = new NetworkCredential(username, password, domain);
+			}
 
 			var applicationRootPath = HttpContext.Current.Server.MapPath("/");
 			_workspaceInfo = Workstation.Current.GetLocalWorkspaceInfo(applicationRootPath);
