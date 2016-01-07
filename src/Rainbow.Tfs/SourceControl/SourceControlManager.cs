@@ -12,14 +12,14 @@ namespace Rainbow.Tfs.SourceControl
 		private string _username;
 		private string _password;
 		private string _domain;
-	    private string _workspacePath;
-	    private bool? _useImpersonation;
+		private string _workspacePath;
+		private bool? _useImpersonation;
 
 		private const string UsernameKey = "Rainbow.Tfs.Login";
 		private const string PasswordKey = "Rainbow.Tfs.Password";
 		private const string DomainKey = "Rainbow.Tfs.Domain";
-	    private const string WorkspacePathKey = "Rainbow.Tfs.WorkspacePath";
-	    private const string UseImpersonationKey = "Rainbow.Tfs.UseImpersonationCredentials";
+		private const string WorkspacePathKey = "Rainbow.Tfs.WorkspacePath";
+		private const string UseImpersonationKey = "Rainbow.Tfs.UseImpersonationCredentials";
 
 		protected string Username
 		{
@@ -60,52 +60,52 @@ namespace Rainbow.Tfs.SourceControl
 			}
 		}
 
-	    protected string WorkspacePath
-	    {
-	        get
-	        {
-	            if (!string.IsNullOrWhiteSpace(_workspacePath)) return _workspacePath;
+		protected string WorkspacePath
+		{
+			get
+			{
+				if (!string.IsNullOrWhiteSpace(_workspacePath)) return _workspacePath;
 
-	            var configSetting = Settings.GetSetting(WorkspacePath);
-	            _workspacePath = configSetting;
+				var configSetting = Settings.GetSetting(WorkspacePath);
+				_workspacePath = configSetting;
 
-	            return _workspacePath;
-	        }
-	    }
+				return _workspacePath;
+			}
+		}
 
-	    protected bool UseImpersonation
-	    {
-	        get
-	        {
-	            if (_useImpersonation.HasValue) return _useImpersonation.Value;
+		protected bool UseImpersonation
+		{
+			get
+			{
+				if (_useImpersonation.HasValue) return _useImpersonation.Value;
 
-	            var configSetting = Settings.GetBoolSetting(UseImpersonationKey, false);
-	            _useImpersonation = configSetting;
+				var configSetting = Settings.GetBoolSetting(UseImpersonationKey, false);
+				_useImpersonation = configSetting;
 
-	            return configSetting;
-	        }
-	    }
+				return configSetting;
+			}
+		}
 
 		private ScmSettings GetSettings()
 		{
-		    return new ScmSettings()
-		    {
-		        Domain = Domain,
-		        Password = Password,
-		        Username = Username,
-		        WorkspacePath = string.IsNullOrWhiteSpace(WorkspacePath)
-		            ? HttpContext.Current.Server.MapPath("/")
-		            : WorkspacePath,
-		        UseImpersonation = UseImpersonation
-		    };
+			return new ScmSettings()
+			{
+				Domain = Domain,
+				Password = Password,
+				Username = Username,
+				WorkspacePath = string.IsNullOrWhiteSpace(WorkspacePath)
+					? HttpContext.Current.Server.MapPath("/")
+					: WorkspacePath,
+				UseImpersonation = UseImpersonation
+			};
 		}
 
 		public SourceControlManager()
 		{
 			var settings = GetSettings();
 
-            SourceControlSync = new FileSyncTfs(settings);
-        }
+			SourceControlSync = new FileSyncTfs(settings);
+		}
 
 		public SourceControlManager(ISourceControlSync sourceControlSync)
 		{
