@@ -1,8 +1,10 @@
 ﻿using System;
 using System.IO;
+using System.Text.RegularExpressions;
 using Rainbow.Formatting;
 using Rainbow.Storage;
 using Rainbow.Tfs.SourceControl;
+using Sitecore.Configuration;
 
 namespace Rainbow.Tfs.Storage
 {
@@ -38,5 +40,20 @@ namespace Rainbow.Tfs.Storage
 
 			base.Clear();
 		}
+
+	    protected override string InitializeRootPath(string rootPath)
+	    {
+	        const string settingsRegex = @"\$\(([^)]+)\)";
+	        var path = rootPath;
+
+	        var sitecoreSettings = Regex.Matches(path, settingsRegex);
+
+	        foreach (Match match in sitecoreSettings)
+	        {
+	            path = path.Replace(match.Value, Settings.GetSetting(match.Groups[1].Value, match.Value));
+	        }
+
+	        return base.InitializeRootPath(path);
+	    }
 	}
 }
