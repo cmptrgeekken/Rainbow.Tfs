@@ -11,38 +11,36 @@ namespace Rainbow.Tfs.SourceControl
 		private readonly WorkspaceInfo _workspaceInfo;
 		private readonly NetworkCredential _networkCredential;
 
-		public bool AllowFileSystemClear { get { return false; } }
+        public bool AllowFileSystemClear { get { return false; } }
+        
 
-		public FileSyncTfs(string username, string password, string domain)
+		public FileSyncTfs(ScmSettings settings)
 		{
-			// If no username is specified, we attempt to retrieve the Network
-			// Credentials based off the current impersonated identity
-			if (string.IsNullOrWhiteSpace(username))
-			{
-				var windowsIdentity = WindowsIdentity.GetCurrent();
-				if (windowsIdentity == null)
-				{
-					throw new Exception("[Rainbow.Tfs] Unable to retrieve impersonated identity.");
-				}
+		    if (settings.UseImpersonation)
+		    {
+                var windowsIdentity = WindowsIdentity.GetCurrent();
+                if (windowsIdentity == null)
+                {
+                    throw new Exception("[Rainbow.Tfs] Unable to retrieve impersonated identity.");
+                }
 
-				using (windowsIdentity.Impersonate())
-				{
-					_networkCredential = CredentialCache.DefaultNetworkCredentials;
-				}
-			}
-			else
-			{
-				_networkCredential = new NetworkCredential(username, password, domain);
-			}
+                using (windowsIdentity.Impersonate())
+                {
+                    _networkCredential = CredentialCache.DefaultNetworkCredentials;
+                }
+            }
+		    else
+		    {
+                _networkCredential = new NetworkCredential(settings.Username, settings.Password, settings.Domain);
+            }
 
-			var applicationRootPath = HttpContext.Current.Server.MapPath("/");
-			_workspaceInfo = Workstation.Current.GetLocalWorkspaceInfo(applicationRootPath);
-			AssertWorkspace(_workspaceInfo, applicationRootPath);
+            _workspaceInfo = Workstation.Current.GetLocalWorkspaceInfo(settings.WorkspacePath);
+		    AssertWorkspace(_workspaceInfo, settings.WorkspacePath);
 
 			EnsureUpdateWorkspaceInfoCache();
 		}
 
-		private void AssertWorkspace(WorkspaceInfo workspaceInfo, string filename)
+        private void AssertWorkspace(WorkspaceInfo workspaceInfo, string filename)
 		{
 			if (workspaceInfo != null) return;
 			throw new Exception("[Rainbow.Tfs] No workspace is available or defined for the path. Verify your ASP.NET impersonation credentials in IIS for local TFS cache access. File " + filename);
